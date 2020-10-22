@@ -179,21 +179,21 @@ namespace Haversine
 		/// <summary>
 		/// Convert radians to degrees
 		/// </summary>
-		/// <param name="val"></param>
+		/// <param name="radians"></param>
 		/// <returns></returns>
-		public static double ToDegrees(this double val)
+		public static double ToDegrees(this double radians)
 		{
-			return val * (180.0 / Math.PI);
+			return radians * (180.0 / Math.PI);
 		}
 
 		/// <summary>
 		/// Convert degrees to radians.
 		/// </summary>
-		/// <param name="val"></param>
+		/// <param name="degrees"></param>
 		/// <returns></returns>
-		public static double ToRadians(this double val)
+		public static double ToRadians(this double degrees)
 		{
-			return (Math.PI / 180) * val;
+			return (Math.PI / 180) * degrees;
 		}
 	}
 
