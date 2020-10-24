@@ -1,4 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Data.SQLite;
+using System.Linq;
 
 namespace Haversine
 {
@@ -55,6 +59,7 @@ namespace Haversine
 				Longitude = 2.351508
 			};
 
+			// Distance calculations
 			double result1 = GeoCalc.Distance(pos1, pos2);
 			double result2 = GeoCalc.Distance(pos1, pos3);
 			double result3 = GeoCalc.Distance(pos1, pos4);
@@ -65,12 +70,24 @@ namespace Haversine
 
 			Console.WriteLine();
 
+			// Calculate bounding rectangle
 			double boundingRadiusMiles = 50;
 			var geoArea = GeoCalc.BoundingCoordinates(pos1, boundingRadiusMiles);
 
 			Console.WriteLine($"The bounding coordinates for a center point at {pos1.Name} ({pos1.Latitude.RoundTo(2)}, {pos1.Longitude.RoundTo(2)}), with a radius of {boundingRadiusMiles} miles, are as follows:");
 			Console.WriteLine($"\tMinimum and maximum latitude values are {geoArea.MinimumLatitude.RoundTo(2)}d and {geoArea.MaximumLatitude.RoundTo(2)}d, respectively.");
 			Console.WriteLine($"\tMinimum and maximum longitude values are {geoArea.MinimumLongitude.RoundTo(2)}d and {geoArea.MaximumLongitude.RoundTo(2)}d, respectively.");
+
+			Console.WriteLine();
+
+			// Generate list of cities within a specified radius of an origin point
+			var withinDistance = 10;
+			var cities = GeoCalc.CitiesWithinDistance(pos1, withinDistance);
+			Console.WriteLine($"Cities within {withinDistance} miles of {pos1.Name}");
+
+			IEnumerable<Models.City> query = from city in cities orderby city.Distance select city;
+			foreach (var city in query)
+				Console.WriteLine($"\t{city.CityName}, {city.StateName} in {city.CountyName} county ({city.Distance.RoundTo(2)} miles)");
 		}
 	}
 
@@ -150,6 +167,68 @@ namespace Haversine
 				MinimumLongitude = minLon.ToDegrees(),
 				MaximumLongitude = maxLon.ToDegrees()
 			};
+		}
+
+		/// <summary>
+		/// Generate list of cities within a given radius of an origin point.
+		/// </summary>
+		/// <param name="centerPoint"></param>
+		/// <param name="distance"></param>
+		/// <returns></returns>
+		public static List<Models.City> CitiesWithinDistance(Position centerPoint, double distance)
+		{
+			var inputCities = new List<Models.City>();
+			var outputCities = new List<Models.City>();
+
+			var connectionString = $"URI=file:{Path.Combine("database", "uscities.db")}";
+
+			using (var connection = new SQLiteConnection(connectionString))
+			{
+				connection.Open();
+
+				var statement = $"SELECT city AS CityName,state_id AS StateAbbreviation,state_name as StateName,county_name as CountyName,lat as Latitude,lng as Longitude FROM uscities";
+
+				using (var command = new SQLiteCommand(statement, connection))
+				{
+					using (SQLiteDataReader reader = command.ExecuteReader())
+					{
+						if (reader.HasRows)
+						{
+							while (reader.Read())
+							{
+								var inputCity = new Models.City()
+								{
+									CityName = reader.GetString(0),
+									StateAbbreviation = reader.GetString(1),
+									StateName = reader.GetString(2),
+									CountyName = reader.GetString(3),
+									Latitude = Convert.ToDouble(reader.GetString(4)),
+									Longitude = Convert.ToDouble(reader.GetString(5)),
+								};
+
+								var destinationPoint = new Position()
+								{
+									Name = inputCity.CityName,
+									Latitude = inputCity.Latitude,
+									Longitude = inputCity.Longitude
+								};
+
+								inputCity.Distance = Distance(centerPoint, destinationPoint);
+
+								inputCities.Add(inputCity);
+							}
+
+							foreach (var inputCity in inputCities)
+							{
+								if (inputCity.Distance <= distance)
+									outputCities.Add(inputCity);
+							}
+						}
+					}
+				}
+			}
+
+			return outputCities;
 		}
 	}
 
