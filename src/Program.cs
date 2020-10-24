@@ -65,10 +65,10 @@ namespace Haversine
 			// Generate list of cities within a specified radius of an origin point
 			var withinDistance = 10;
 			var cities = GeoCalc.CitiesWithinDistance(pos1, withinDistance);
+
 			Console.WriteLine($"Cities within {withinDistance} miles of {pos1.Name}");
 
-			IEnumerable<Models.City> query = from city in cities orderby city.Distance select city;
-			foreach (var city in query)
+			foreach (var city in cities)
 				Console.WriteLine($"\t{city.CityName}, {city.StateName} in {city.CountyName} county ({city.Distance.RoundTo(2)} miles)");
 		}
 	}

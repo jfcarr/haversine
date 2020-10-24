@@ -135,11 +135,11 @@ namespace Haversine.Lib
 								inputCities.Add(inputCity);
 							}
 
-							foreach (var inputCity in inputCities)
-							{
-								if (inputCity.Distance <= distance)
-									outputCities.Add(inputCity);
-							}
+							outputCities = inputCities
+								.Where(x => x.Distance <= distance)
+								.OrderBy(x => x.Distance)
+								.Select(x => x)
+								.ToList<City>();
 						}
 					}
 				}
