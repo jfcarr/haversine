@@ -113,15 +113,7 @@ namespace Haversine.Lib
 						{
 							while (reader.Read())
 							{
-								var inputCity = new Models.City()
-								{
-									CityName = reader.GetColumnString("CityName"),
-									StateAbbreviation = reader.GetColumnString("StateAbbreviation"),
-									StateName = reader.GetColumnString("StateName"),
-									CountyName = reader.GetColumnString("CountyName"),
-									Latitude = reader.GetColumnDouble("Latitude"),
-									Longitude = reader.GetColumnDouble("Longitude")
-								};
+								var inputCity = reader.MapToCityModel();
 
 								var destinationPoint = new Position()
 								{
