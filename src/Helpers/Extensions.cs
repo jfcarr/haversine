@@ -1,4 +1,5 @@
 using System;
+using System.Data.SQLite;
 
 namespace Haversine.Helpers
 {
@@ -43,6 +44,19 @@ namespace Haversine.Helpers
 		public static double ToRadians(this double degrees)
 		{
 			return (Math.PI / 180) * degrees;
+		}
+	}
+
+	public static class SQLiteExtensions
+	{
+		public static string GetColumnString(this SQLiteDataReader reader, string columnName)
+		{
+			return reader.GetString(reader.GetOrdinal(columnName));
+		}
+
+		public static double GetColumnDouble(this SQLiteDataReader reader, string columnName)
+		{
+			return Convert.ToDouble(reader.GetString(reader.GetOrdinal(columnName)));
 		}
 	}
 }

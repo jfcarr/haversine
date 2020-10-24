@@ -92,7 +92,7 @@ namespace Haversine.Lib
 		/// <param name="centerPoint"></param>
 		/// <param name="distance"></param>
 		/// <returns></returns>
-		public static List<Models.City> CitiesWithinDistance(Position centerPoint, double distance)
+		public static List<Models.City> CitiesWithinDistance(Position centerPoint, double distanceLimit)
 		{
 			var inputCities = new List<Models.City>();
 			var outputCities = new List<Models.City>();
@@ -115,12 +115,12 @@ namespace Haversine.Lib
 							{
 								var inputCity = new Models.City()
 								{
-									CityName = reader.GetString(0),
-									StateAbbreviation = reader.GetString(1),
-									StateName = reader.GetString(2),
-									CountyName = reader.GetString(3),
-									Latitude = Convert.ToDouble(reader.GetString(4)),
-									Longitude = Convert.ToDouble(reader.GetString(5)),
+									CityName = reader.GetColumnString("CityName"),
+									StateAbbreviation = reader.GetColumnString("StateAbbreviation"),
+									StateName = reader.GetColumnString("StateName"),
+									CountyName = reader.GetColumnString("CountyName"),
+									Latitude = reader.GetColumnDouble("Latitude"),
+									Longitude = reader.GetColumnDouble("Longitude")
 								};
 
 								var destinationPoint = new Position()
@@ -136,7 +136,7 @@ namespace Haversine.Lib
 							}
 
 							outputCities = inputCities
-								.Where(x => x.Distance <= distance)
+								.Where(x => x.Distance <= distanceLimit)
 								.OrderBy(x => x.Distance)
 								.Select(x => x)
 								.ToList<City>();
