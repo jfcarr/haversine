@@ -1,3 +1,3 @@
-src/.vscode/*
-src/bin/*
-src/obj/*
+csharp/.vscode/*
+csharp/bin/*
+csharp/obj/*
