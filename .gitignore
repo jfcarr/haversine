@@ -1,0 +1,4 @@
+csharp/.vscode/*
+csharp/bin/*
+csharp/obj/*
+rust/target/*
